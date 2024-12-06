@@ -1,17 +1,24 @@
-import { Divider } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
-import { authClient } from '../../client/client';
-// import Block from '../../components/Block/Block';
-// import Page from '../Page/Page';
+import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-// const BBlock = () => {
-//     const { pageId } = useParams();
+import Block from '../../components/Block/Block';
+import Page from '../Page/Page';
+import { getUser } from '../../client/auth/user';
 
-//     const navigate = useNavigate();
+const BBlock = () => {
+    const navigate = useNavigate();
+    const { pageId } = useParams();
+    const location = useLocation();
+    const [key, setKey] = useState(pageId);
 
-//     return (<Block id={pageId} onError={() => navigate('/app')}/>);
-// }
+    useEffect(() => {
+        setKey(pageId);
+    }, [location.pathname]);
+
+    return (
+        <Block key={key} id={pageId} onError={() => navigate('/app')} />
+    );
+}
 
 const AppPage = () => {
     const [userData, setUserData] = useState(null);
@@ -19,13 +26,12 @@ const AppPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        authClient
-            .get('/user')
-            .then((response) => {
-                setUserData(response.data);
+        getUser()
+            .then((data) => {
+                setUserData(data);
             })
-            .catch((error) => {
-                // navigate('/auth/signin');
+            .catch((e) => {
+                navigate('/auth/signin');
             });
     }, []);
 
@@ -34,23 +40,12 @@ const AppPage = () => {
     }
 
     return (
-        <>
-                    <h1>{userData.username}</h1>
-                    <Divider />
-                </>
+        <Page>
+            <Routes>
+                <Route path='/page/:pageId' element={<BBlock />} />
+            </Routes>
+        </Page>
     );
-
-    // return (
-    //     // <Page>
-    //         // <Routes>
-    //             {/* <Route path='/page/:pageId' element={<BBlock />}/> */}
-    //             <>
-    //                 <h1>{userData.username}</h1>
-    //                 <Divider />
-    //             </>
-    //         // </Routes>
-    //     // </Page>
-    // );
 };
 
 export default AppPage;

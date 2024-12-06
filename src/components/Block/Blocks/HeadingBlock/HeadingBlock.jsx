@@ -4,7 +4,7 @@ import { Typography } from 'antd';
 import { patchBlock } from '../../../../client/notes/block';
 
 
-const TextBlock = ({ block }) => {
+const HeadingBlock = ({ block, level, inline=false }) => {
     const [textContent, setTextContent] = useState(block.properties.text[0][0]);
 
     const onChange = (text) => {
@@ -19,14 +19,14 @@ const TextBlock = ({ block }) => {
     }
 
     return (
-        <Typography.Text type={textContent === '' ? 'secondary' : ''} editable={{onChange: onChange, triggerType: ['text']}}>
+        <Typography.Title level={level} type={textContent === '' ? 'secondary' : ''} editable={{onChange: onChange, triggerType: ['text']}}>
             {
                 textContent === '' ? 
                 "Type text..." :
                 textContent
             }
-        </Typography.Text>
+        </Typography.Title>
     );
 };
 
-export default TextBlock;
+export default HeadingBlock;

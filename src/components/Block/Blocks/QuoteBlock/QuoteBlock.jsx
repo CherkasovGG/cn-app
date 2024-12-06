@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-
 import { Typography } from 'antd';
+import React, { useState } from 'react';
 import { patchBlock } from '../../../../client/notes/block';
 
-
-const TextBlock = ({ block }) => {
+const QuoteBlock = ({ block }) => {
     const [textContent, setTextContent] = useState(block.properties.text[0][0]);
 
     const onChange = (text) => {
@@ -19,14 +17,21 @@ const TextBlock = ({ block }) => {
     }
 
     return (
-        <Typography.Text type={textContent === '' ? 'secondary' : ''} editable={{onChange: onChange, triggerType: ['text']}}>
+        <Typography.Paragraph type={textContent === '' ? 'secondary' : ''} editable={{onChange: onChange, triggerType: ['text'], text: (
+                textContent === '' ? 
+                "Type text..." :
+                textContent
+            )}}
+            style={{margin: 0}}>
+            <blockquote style={{margin: 0}}>
             {
                 textContent === '' ? 
                 "Type text..." :
                 textContent
             }
-        </Typography.Text>
+            </blockquote>
+        </Typography.Paragraph>
     );
 };
 
-export default TextBlock;
+export default QuoteBlock;

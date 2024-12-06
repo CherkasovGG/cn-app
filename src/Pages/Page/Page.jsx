@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Menu from './Menu/Menu';
 
 
 const Page = ({ children }) => {
+    const [reloadMenu, setReloadMenu] = useState(false);
+
+    const reload = () => {
+        setReloadMenu(!reloadMenu);
+    }
+
     return (
         <div className="flex row align-items-left w100vw h100vh" style={{padding: "50px"}}>
             <div className="flex column">
-                <Menu />
+                <Menu reload={reload}/>
             </div>
             <div style={{
                 width: "-webkit-fill-available",

@@ -1,78 +1,136 @@
 import React, { useEffect, useState } from 'react';
-import { SettingOutlined, UserOutlined, FolderOutlined, FolderOpenOutlined } from '@ant-design/icons';
-import { Flex, Menu } from 'antd';
+import { SettingOutlined, UserOutlined, FolderOutlined, FolderOpenOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { Button, Flex, Menu, Typography } from 'antd';
 
 import MenuItem from 'antd/es/menu/MenuItem';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { notesClient } from '../../../client/client';
+import { createBlock, getBlock, patchBlock } from '../../../client/notes/block';
+import { getWorkspace } from '../../../client/notes/workspace';
+import { EventEmitter } from '../../../events/events';
 
+const { Text, Link } = Typography;
 
 const WorkSpaceMenu = () => {
-  const [workspaceId, setWorkspaceId] = useState(null);
+  const [reloadState, setReloadState] = useState(true);
+  const [workspace, setWorkspace] = useState(null);
   const [items, setItems] = useState([]);
   const { pageId } = useParams();
 
-  const fetchData = async (id) => {
-    return new Promise((resolve, reject) => {
-      notesClient
-        .get("/block/" + id)
-      
-      notesClient.getBlockRouteBlockIdGet(id, (error, data, response) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(data);
+  const navigate = useNavigate();
+
+  const createPage = () => {
+    createBlock({
+      type: 'page',
+      properties: {
+        text: [[""]],
+        emoji: "📄",
+      },
+      content: [],
+      parent: workspace.id,
+    })
+      .then(
+        data => {
+          const new_content = [
+            ...workspace.content,
+            data.id,
+          ]
+            patchBlock(workspace.id, {
+              content: new_content
+            })
+              .then(data => {
+                console.log(workspace);
+                
+                workspace.content = new_content;
+
+                let new_ws_data = workspace;
+
+                setWorkspace({
+                  id: new_ws_data.id,
+                  type: new_ws_data.type,
+                  properties: new_ws_data.properties,
+                  content: new_content,
+                  parent_id: new_ws_data.parent_id,
+                });
+
+                handleUpdateMenu();
+              })
         }
-      });
-    });
-  };
+      )
+      .catch(err => console.log(err));
+  }
 
-  const generateItems = async (id) => {
-    const data = await fetchData(id);
-
+  const generateItems = async (data) => {
     const item = {
       key: data.id,
-      icon: data.type === 'folder' ? <FolderOutlined /> : null,
-      label: data.type === 'folder' ? data.properties.title : <a href={"/app/page/" + data.id}>{data.properties.title}</a>,
+      icon: <div>{data.properties.emoji ? data.properties.emoji : "📄"}</div>,
+      label: data.type === "page" ? (<a onClick={() => navigate("/app/page/" + data.id, {
+        state: {
+          pageId: data.id,
+        }
+      })}>{data.properties.text[0][0] === "" ? 'Untitled' : data.properties.text[0][0]}</a>) : "",
       children: [],
     };
 
     if (data.content && data.content.length > 0) {
       for (const contentId of data.content) {
-        const child = await fetchData(contentId);
-
-        if (child.type != 'folder' && child.type != 'page')
+        let child = undefined;
+        
+        try {
+          child = await getBlock(contentId);
+        } catch (error) {
           continue;
+        }
 
-        const childItem = await generateItems(contentId);
+        if (child.type != 'page') {
+          continue;
+        }
+
+        const childItem = await generateItems(child);
 
         item.children.push(childItem);
       }
     }
 
+    if (data.type === 'workspace') {
+      const add_button = {
+        key: data.id,
+        icon: <PlusCircleOutlined />,
+        label: <a onClick={createPage}>New Page</a>,
+        children: null,
+      };
+  
+      item.children.push(add_button)
+    }
+
     if (item.children.length === 0) {
-      item.children = null
+      item.children = null;
     }
 
     return item;
   };
 
-  const fetchWsData = async () => {
-    return new Promise((resolve, reject) => {
-      workspaceApiInstance.getWorkspaceRouteWorkspaceGet((error, data, response) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(data);
-        }
-      });
-    });
-  };
+  const handleUpdateMenu = () => {
+    setReloadState(!reloadState);
+  }
+
+  EventEmitter.subscribe('updateMenu', handleUpdateMenu);
+
+  useEffect(() => {
+    getWorkspace()
+      .then(
+        data => {
+          setWorkspace(data);
+        })
+  }, [reloadState])
 
   useEffect(() => {
     const load = async () => {
-      const data = await fetchWsData();
+      if (workspace === null || workspace === undefined) {
+        return;
+      }
 
-      const data_in_json = await generateItems(data.id);
+      const data_in_json = await generateItems(workspace);
 
       const children = data_in_json.children;
 
@@ -104,7 +162,7 @@ const WorkSpaceMenu = () => {
     }
 
     load();
-  }, []);
+  }, [workspace]);
 
   const getLevelKeys = (items1) => {
     const key = {};
@@ -137,7 +195,6 @@ const WorkSpaceMenu = () => {
           .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey]),
       );
     } else {
-      // close
       setStateOpenKeys(openKeys);
     }
   };

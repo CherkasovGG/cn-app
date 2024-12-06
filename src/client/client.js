@@ -1,4 +1,4 @@
-import axios, { Axios, AxiosError } from "axios";
+import axios from "axios";
 
 import { config } from '../config';
 
@@ -10,34 +10,30 @@ axios.interceptors.response.use((error) => {
 });
 
 const notesClient = axios.create({
-    baseURL: config.baseURL + '/notes',
+    baseURL: "http://localhost:8001",
     headers: {
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
     },
 });
 
 const authClient = axios.create({
-    baseURL: config.baseURL + '/auth',
+    baseURL: "http://localhost:8000",
     headers: {
         "Content-Type": "application/json",
     },
-    // proxy: {
-    //     host: 'localhost',
-    //     port: 3000,
-    //     protocol: 'http',
-    // },
 });
 
 
 const mediaClient = axios.create({
-    baseURL: config.baseURL + '/media',
+    baseURL: window.location === "localhost" ? "http://localhost:8002" : (config.baseURL + "/media"),
     headers: {
         "Content-Type": "application/json",
     },
 });
 
 const reminderClient = axios.create({
-    baseURL: config.baseURL + '/reminder',
+    baseURL: window.location === "localhost" ? "http://localhost:8003" : (config.baseURL + "/reminder"),
     headers: {
         "Content-Type": "application/json",
     },

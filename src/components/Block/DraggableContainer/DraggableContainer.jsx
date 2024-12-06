@@ -1,9 +1,12 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-import { HolderOutlined } from '@ant-design/icons';
+import { HolderOutlined, PlusOutlined, FileTextOutlined, P, AlignLeftOutlined, FileOutlined, CheckSquareOutlined, LineHeightOutlined, MenuUnfoldOutlined, FontSizeOutlined } from '@ant-design/icons';
 
 import classes from '../Block.module.css';
+import { Button, Flex, Popover } from 'antd';
+import { patchBlock } from '../../../client/notes/block';
+import { EventEmitter } from '../../../events/events';
 
 
 const DraggableContainer = ({ children, onUpdate, ...props }) => {
@@ -19,13 +22,77 @@ const DraggableContainer = ({ children, onUpdate, ...props }) => {
     reorderedItems.splice(result.destination.index, 0, removed);
     setItems(reorderedItems);
 
-    // Отправка обновлений на API
     if (onUpdate) {
       onUpdate(reorderedItems.map((item, i) => item.props.id))
     }
   };
 
-  const items_memo = useMemo(() => items.map((item, index) => {
+  const types = [
+    {
+      "type": "text",
+      "icon": <AlignLeftOutlined />,
+      "title": "Text",
+    },
+    {
+      "type": "h1",
+      "icon": <FontSizeOutlined />,
+      "title": "Heading 1",
+    },
+    {
+      "type": "h2",
+      "icon": <FontSizeOutlined />,
+      "title": "Heading 2",
+    },
+    {
+      "type": "h3",
+      "icon": <FontSizeOutlined />,
+      "title": "Heading 3",
+    },
+    {
+      "type": "quote",
+      "icon": <MenuUnfoldOutlined />,
+      "title": "Quote",
+    },
+    {
+      "type": "check-box",
+      "icon": <CheckSquareOutlined />,
+      "title": "Check Box",
+    },
+    {
+      "type": "page",
+      "icon": <FileOutlined />,
+      "title": "Page",
+    },
+  ];
+
+  const chooseTypePopover = (id) => (
+    <Flex vertical>
+      {
+        types.map((type, i) =>
+          <Button
+            key={type.type}
+            type="text"
+            icon={type.icon}
+            style={{
+              justifyContent: "flex-start",
+            }}
+            onClick={() => {
+              console.log(id, type.type);
+
+              patchBlock(id, {
+                type: type.type,
+              })
+                .then(resp => {
+                  EventEmitter.emit('updateMenu');
+                })
+            }}
+          >{type.title}</Button>
+        )
+      }
+    </Flex>
+  );
+
+  const items_memo = items.map((item, index) => {
     return <Draggable key={item.props.id} draggableId={String(item.props.id)} index={index} direcion>
       {(provided) => {
         // let transform = provided.draggableProps.style?.transform
@@ -40,23 +107,33 @@ const DraggableContainer = ({ children, onUpdate, ...props }) => {
         // }
 
         return <div ref={provided.innerRef} {...provided.draggableProps} className={classes.container}>
-          <div style={{display: "flex", alignItems: "start"}}>
+          <div style={{display: "flex", alignItems: "center"}}>
+          <Popover placement="leftTop" content={chooseTypePopover(item.props.id)} trigger="click" overlayStyle={{
+            width: "200px",
+          }}>
+            <PlusOutlined 
+              style={{
+                cursor: 'pointer',
+              }}
+              className={classes.dragHandle}
+            />
+          </Popover>
             <HolderOutlined
               {...provided.dragHandleProps} 
               style={{
-                padding: '12px',
                 cursor: 'grab',
               }}
+              className={classes.dragHandle}
             />
             {item}
           </div>
         </div>
       }}
     </Draggable>}
-  ))
+  )
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={onDragEnd} {...props}>
       <Droppable droppableId="droppable">
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps} className={classes.block_list}>

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Navigate, Route } from 'react-router-dom';
+import { getToken } from '../../client/auth';
 
 const RouteGuard = ({ children }) => {
     function hasJWT() {
         let flag = false;
 
-        localStorage.getItem("token") ? flag=true : flag=false
+        getToken() ? flag=true : flag=false
 
         return flag
     }

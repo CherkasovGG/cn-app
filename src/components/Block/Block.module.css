@@ -4,7 +4,7 @@
 
     width: 100%;
 
-    padding: 12px 0 0 0;
+    padding: 0;
 
     /* border: 1px solid black; */
 
@@ -26,6 +26,17 @@
     /* &:hover:not(:has(.container:hover)) {
         background-color: rgb(240, 200, 200);
     } */
+}
+
+.dragHandle {
+    opacity: 0;
+    cursor: grab;
+    transition: 0.2s;
+    padding: 14px 12px 12px 0;
+}
+
+.dragHandle:hover {
+    opacity: 1;
 }
 
 .block_list {

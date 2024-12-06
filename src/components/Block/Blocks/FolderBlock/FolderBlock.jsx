@@ -1,25 +1,29 @@
 import { Typography } from 'antd';
 import React from 'react';
-import { BlockApi } from 'notes_service';
+
 import DraggableContainer from '../../DraggableContainer/DraggableContainer';
 import Block from '../../Block';
 
+import { notesClient } from '../../../../client/client';
 
-const apiInstance = new BlockApi();
 
 const FolderBlock = ({ block, inline=false }) => {
     const patchContent = (content) => {
         if (block.content === content)
-          return;
+            return;
     
         block.content = content;
     
-        apiInstance.updateBlockRouteBlockIdPut(block.id, {
-          type: block.type,
-          properties: block.properties,
-          content: block.content,
-          parent: block.parent,
-        });
+        notesClient
+            .put("/block/" + block.id, {
+                type: block.type,
+                properties: block.properties,
+                content: block.content,
+                parent: block.parent,
+            })
+            .catch(
+                (error) => console.error(error)
+            )
     }
 
     return (

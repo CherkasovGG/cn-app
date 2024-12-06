@@ -5,6 +5,8 @@ import 'antd/dist/reset.css';
 import { authClient } from '../../client/client';
 import { useNavigate } from 'react-router-dom';
 import { setAuthToken } from '../../client/auth';
+import { config } from '../../config';
+import { login } from '../../client/auth/auth';
 
 
 const SignInPage = () => {
@@ -12,14 +14,13 @@ const SignInPage = () => {
     const navigate = useNavigate();
 
     const onFinish = async (values) => {
-        authClient
-            .post("/auth/token", values)
-            .then((response) => {
-                console.log(response);
+        console.log(JSON.stringify(values));
 
-                const token  =  response.data.access_token;
+        login(values)
+            .then((data) => {
+                console.log(data);
 
-                localStorage.setItem("token", token);
+                const token  =  data.access_token;
 
                 setAuthToken(token);
 

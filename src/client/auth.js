@@ -1,49 +1,23 @@
-import axios from 'axios';
-import { authClient } from './client';
+import axios from "axios";
+import { config } from "../config";
+import { authClient, notesClient } from "./client";
+import { verify } from "./auth/auth";
 
 const setAuthToken = token => {
     if (token) {
-        console.log(`Bearer ${token}`);
-        authClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        localStorage.setItem('token', token);
+        notesClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        authClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
-        delete axios.defaults.headers.common["Authorization"];
+        // localStorage.removeItem('token');
     }
 }
 
-// const verifyToken = (token) => {
-//     const response = authClient
-//         .get('/auth/verify', {
-//             headers: {
-//                 Authorization: `Bearer ${token}`,
-//             },
-//         })
-//         .then((response) => {
-//             return true;
-//         })
-//         .catch((error) => {
-//             return false;
-//         })
-
-//     console.log(response);
-            
-//     return response;
-// }
-
-const verifyToken = async (token) => {
-    return await authClient.get('/auth/verify', {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    })
-    .then(response => {
-        return true; 
-    })
-    .catch(error => {
-        return false;
-    });
-};
+const getToken = () => {
+    return localStorage.getItem('token');
+}
 
 export {
     setAuthToken,
-    verifyToken,
+    getToken,
 }

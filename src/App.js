@@ -8,9 +8,10 @@ import SignInPage from './Pages/SignInPage/SignInPage';
 // import WorkSpace from './Pages/WorkSpace/WorkSpace';
 // import AccountPage from './Pages/AccountPage/AccountPage';
 import AppPage from './Pages/AppPage/AppPage';
-import { setAuthToken, verifyToken } from './client/auth';
+import { setAuthToken } from './client/auth';
 import RouteGuard from './components/RouteGuard/RouteGuard';
 import { useEffect, useState } from 'react';
+import { verifyToken } from './client/auth/auth';
 
 
 const App = () => {
@@ -22,12 +23,7 @@ const App = () => {
     
       const verify = await verifyToken(token);
 
-      console.log("verify: ");
-      console.log(verify);
-
-      if (token && verify) {
-          setAuthToken(token);
-      } else {
+      if (!verify) {
         localStorage.removeItem("token");
       }
 

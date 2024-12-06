@@ -2,28 +2,30 @@ import React from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import 'antd/dist/reset.css';
 
-import { authClient } from '../../client/client';
 import { useNavigate } from 'react-router-dom';
+import { config } from '../../config';
+import { createUser } from '../../client/auth/user';
 
 
 const SignUpPage = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const navigate = useNavigate();
 
-    const onFinish = async (values) => {
-        authClient
-            .post("/user", values)
-            .then((response) => {
-                console.log(response)
+    const onFinish = (values) => {
+        console.log(JSON.stringify(values));
 
+        createUser(values)
+            .then((data) => {
                 messageApi.open({
                     type:'success',
                     content: 'Регистрация прошла успешно!'
                 })
 
-                navigate('/auth/signin');
+                // navigate('/auth/signin');
             })
             .catch((error) => {
+                console.log(error);
+
                 let errorMessage = "Неизвестная ошибка! Попробуйте позже.";
 
                 try {
