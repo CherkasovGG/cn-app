@@ -4,6 +4,9 @@ import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router
 import Block from '../../components/Block/Block';
 import Page from '../Page/Page';
 import { getUser } from '../../client/auth/user';
+import AccountPage from '../AccountPage/AccountPage';
+import InboxPage from '../InboxPage/InboxPage';
+import SettingsPage from '../SettingsPage/SettingsPage';
 
 const BBlock = () => {
     const navigate = useNavigate();
@@ -43,6 +46,9 @@ const AppPage = () => {
         <Page>
             <Routes>
                 <Route path='/page/:pageId' element={<BBlock />} />
+                <Route path='/account' element={<AccountPage />} />
+                <Route path='/inbox' element={<InboxPage />} />
+                <Route path='/settings' element={<SettingsPage />} />
             </Routes>
         </Page>
     );

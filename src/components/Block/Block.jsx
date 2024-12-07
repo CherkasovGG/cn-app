@@ -14,6 +14,8 @@ import Heading3Block from './Blocks/HeadingBlock/Heading3Block';
 import QuoteBlock from './Blocks/QuoteBlock/QuoteBlock';
 import Heading1Block from './Blocks/HeadingBlock/Heading1Block';
 import Heading2Block from './Blocks/HeadingBlock/Heading2Block';
+import ImageBlock from './Blocks/ImageBlock/ImageBlock';
+import CheckBoxBlock from './Blocks/CheckBoxBlock/CheckBoxBlock';
 
 
 const Block = ({ id, onError, inline=false, inline_content=false, ...props }) => {
@@ -22,15 +24,20 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [reload, setReload] = useState(false);
+
   const updateData = () => {
     setLoading(true);
 
     getBlock(id)
       .then((data) => {
-        setBlock(data);
+        setBlock({
+          ...data
+        });
 
         EventEmitter.subscribe('update-block-' + data.id, updateData);
 
+        setReload(!reload)
         setLoading(false);
       })
       .catch((error) => {
@@ -55,7 +62,7 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
     })
       .then(reposnse => {
         if (block.type === 'workspace') {
-          EventEmitter.emit('updateMenu', {});
+          EventEmitter.emit('updateMenu');
         }
       })
       .catch((error) => {
@@ -80,9 +87,7 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
 
   if (error) {
     return (
-      <div className={classes.wrap}>
-        Error fetching block: {error.message}
-      </div>
+      null
     );
   }
 
@@ -95,14 +100,16 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
           "h2": <Heading2Block block={block} inline={inline} />,
           "h3": <Heading3Block block={block} inline={inline} />,
           "quote": <QuoteBlock block={block} inline={inline} />,
+          "image": <ImageBlock block={block} inline={inline} />,
           "page": <PageBlock block={block} inline={inline}/>,
+          "check-box": <CheckBoxBlock block={block} inline={inline}/>,
           "workspace": <WorkSpaceBlock block={block} inline={inline} inline_content={true}/>,
         }[block.type]
       }
       {
         block === null || (inline && block.type === "page") ?
         null :
-        <ContentCtx inline={inline_content || block.type === "workspace" || block.type === "page"} block={block} onUpdate={(reorderedItems) => {
+        <ContentCtx key={reload} inline={inline_content || block.type === "workspace" || block.type === "page"} block={block} onUpdate={(reorderedItems) => {
           patchContent(reorderedItems)
         }}/>
       }

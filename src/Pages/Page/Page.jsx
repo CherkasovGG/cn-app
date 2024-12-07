@@ -10,7 +10,7 @@ const Page = ({ children }) => {
     }
 
     return (
-        <div className="flex row align-items-left w100vw h100vh" style={{padding: "50px"}}>
+        <div className="flex row align-items-left w100vw" style={{padding: "50px"}}>
             <div className="flex column">
                 <Menu reload={reload}/>
             </div>

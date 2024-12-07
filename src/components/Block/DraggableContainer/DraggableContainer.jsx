@@ -1,11 +1,11 @@
 import React from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
-import { HolderOutlined, PlusOutlined, FileTextOutlined, P, AlignLeftOutlined, FileOutlined, CheckSquareOutlined, LineHeightOutlined, MenuUnfoldOutlined, FontSizeOutlined } from '@ant-design/icons';
+import { HolderOutlined, PlusOutlined, AlignLeftOutlined, FileOutlined, CheckSquareOutlined, MenuUnfoldOutlined, FontSizeOutlined, DeleteOutlined, FileImageOutlined } from '@ant-design/icons';
 
 import classes from '../Block.module.css';
 import { Button, Flex, Popover } from 'antd';
-import { patchBlock } from '../../../client/notes/block';
+import { deleteBlock, patchBlock } from '../../../client/notes/block';
 import { EventEmitter } from '../../../events/events';
 
 
@@ -59,6 +59,11 @@ const DraggableContainer = ({ children, onUpdate, ...props }) => {
       "title": "Check Box",
     },
     {
+      "type": "image",
+      "icon": <FileImageOutlined />,
+      "title": "Image",
+    },
+    {
       "type": "page",
       "icon": <FileOutlined />,
       "title": "Page",
@@ -89,10 +94,15 @@ const DraggableContainer = ({ children, onUpdate, ...props }) => {
           >{type.title}</Button>
         )
       }
+      <Button type="text" icon={<DeleteOutlined />} style={{
+        justifyContent: "flex-start",
+      }} onClick={() => {
+        deleteBlock(id);
+      }}>Delete</Button>
     </Flex>
   );
 
-  const items_memo = items.map((item, index) => {
+  const items_memo = items.filter((item, i) => item !== null).map((item, index) => {
     return <Draggable key={item.props.id} draggableId={String(item.props.id)} index={index} direcion>
       {(provided) => {
         // let transform = provided.draggableProps.style?.transform
@@ -135,14 +145,14 @@ const DraggableContainer = ({ children, onUpdate, ...props }) => {
   return (
     <DragDropContext onDragEnd={onDragEnd} {...props}>
       <Droppable droppableId="droppable">
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.droppableProps} className={classes.block_list}>
+        {(provided) => {
+          return <div ref={provided.innerRef} { ...provided.droppableProps } className={classes.block_list}>
             {
               items_memo
             }
             {provided.placeholder}
-          </div>
-        )}
+          </div>;
+        }}
       </Droppable>
     </DragDropContext>
   );

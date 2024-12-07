@@ -1,7 +1,7 @@
 import { Button, Divider, Flex, Popover, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
-import { DeleteOutlined, LinkOutlined } from '@ant-design/icons';
+import { DeleteOutlined, LinkOutlined, PlusOutlined } from '@ant-design/icons';
 
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
@@ -9,10 +9,13 @@ import Picker from '@emoji-mart/react'
 import { deleteBlock, patchBlock } from '../../../../client/notes/block';
 import { useNavigate } from 'react-router-dom';
 import { EventEmitter } from '../../../../events/events';
-
+import CreateReminderModal from './CreateReminderModal';
+import { createReminder } from '../../../../client/reminder/reminder';
 
 const PageBlock = ({ block, inline=false }) => {
     const [blockData, setBlock] = useState(block);
+
+    const [isCreateReminderOpen, setIsCreateReminderOpen] = useState(false);
 
     const navigate = useNavigate();
 
@@ -81,7 +84,7 @@ const PageBlock = ({ block, inline=false }) => {
                 <Flex gap="small">
                     <Popover content={
                         <Picker data={data} onEmojiSelect={(e) => patchProperties({emoji: e.native})} locale='ru' noResultsEmoji="page_facing_up" previewPosition="none"/>
-                    } title="Выбор эмодзи" trigger="hover" placement="bottom">
+                    } title="Выбор эмодзи" trigger="hover" placement="bottomLeft">
                         <span style={{cursor: 'pointer', margin: 0}}>
                         {
                             blockData.properties.emoji ?
@@ -104,27 +107,30 @@ const PageBlock = ({ block, inline=false }) => {
                     </Typography.Title>
                     </strong>
                 </Flex>
-                <Button icon={<DeleteOutlined />} color="danger" variant="filled" size="large" onClick={() => {
-                    deleteBlock(block.id)
-                        .then(data => {
-                            handleRename();
-                            navigate("/app");
-                        })
-                        .catch((err) => {
-                            console.error(err);
-                        });
-                }}/>
+                <CreateReminderModal 
+                    open={isCreateReminderOpen}
+                    onCancel={() => setIsCreateReminderOpen(false)}
+                    onCreate={(val) => {
+                        createReminder(val);
+                        setIsCreateReminderOpen(false);
+                    }}
+                />
+                <Flex gap="small">
+                    <Button icon={<PlusOutlined />} color="primary" variant="filled" size="large" onClick={() => {setIsCreateReminderOpen(true)}}/>
+                    <Button icon={<DeleteOutlined />} color="danger" variant="filled" size="large" onClick={() => {
+                        deleteBlock(block.id)
+                            .then(data => {
+                                handleRename();
+                                navigate("/app");
+                            })
+                            .catch((err) => {
+                                console.error(err);
+                            });
+                    }}/>
+                </Flex>
+                
             </h1>
             <Divider />
-            {/* {
-                blockData === null || blockData.content.length === 0 ?
-                null :
-                <DraggableContainer onUpdate={(reorderedItems) => patchContent(reorderedItems)}>
-                {
-                    blockData.content.map((data, i) => <Block id={data} key={data} inline/>)
-                }
-                </DraggableContainer>
-            } */}
         </>
     );
 };

@@ -110,6 +110,8 @@ const putBlock = async (id, data) => {
 };
 
 const deleteBlock = async (id) => {
+    const block = await getBlock(id);
+    
     const response = await fetch(baseURL + '/' + id, {
         method: 'DELETE',
         headers: {
@@ -122,12 +124,17 @@ const deleteBlock = async (id) => {
         throw new Error('Network response was not ok');
     }
 
-    const parent = cache.get(id);
+    const parent = await getBlock(block.parent);
 
     parent.content = parent.content.filter((val, i) => val !== id);
 
     cache.delete(id);
     saveCacheToLocalStorage();
+
+    cache.set(parent.id, parent);
+
+    EventEmitter.emit('update-block-' + parent.id); 
+    saveCacheToLocalStorage();  
 };
 
 export {

@@ -3,7 +3,8 @@ import Block from '../Block';
 import DraggableContainer from '../DraggableContainer/DraggableContainer';
 
 import { Button } from 'antd';
-import { createBlock } from '../../../client/notes/block';
+import { createBlock, getBlock } from '../../../client/notes/block';
+import { EventEmitter } from '../../../events/events';
 
 const ContentCtx = ({ block, onUpdate, inline=false }) => {
     const [blockData, setBlockData] = useState(block);
@@ -29,21 +30,20 @@ const ContentCtx = ({ block, onUpdate, inline=false }) => {
     }
 
     return (
-        <>
-        <div key={blockData.id + blockData.content}>
-            <DraggableContainer onUpdate={onUpdate}>
-                {
-                    blockData.content.map((data, i) => <Block id={data} key={data} inline={inline}/>)
-                }
-            </DraggableContainer>
+        <div className='flex column'>
+            <div key={blockData.id + blockData.content}>
+                <DraggableContainer onUpdate={onUpdate}>
+                    {
+                        blockData.content.map((data, i) => <Block id={data} key={data} inline={inline}/>)
+                    }
+                </DraggableContainer>
+            </div>
+            {
+                blockData.content.length === 0 && blockData.type !== "page" && blockData.type !== "workspace" ?
+                null :
+                <Button icon="+" style={{'width': "auto", marginTop: '12px', marginLeft: "55px"}} type='dashed' onClick={newBlock}/>
+            }
         </div>
-        {
-            blockData.content.length === 0 && blockData.type !== "page" && blockData.type !== "workspace" ?
-            null :
-            <Button icon="+" style={{'width': "auto", marginTop: '12px'}} type='dashed' onClick={newBlock}/>
-        }
-        {/* <BlockSceleton id={"skeleton-" + block.id} key={"skeleton-" + block.id} className={classes.skeleton}/> */}
-        </>
     );
 };
 

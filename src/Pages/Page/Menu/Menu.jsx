@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { SettingOutlined, UserOutlined, FolderOutlined, FolderOpenOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import { Button, Flex, Menu, Typography } from 'antd';
+import { SettingOutlined, UserOutlined, InboxOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { Flex, Menu } from 'antd';
 
-import MenuItem from 'antd/es/menu/MenuItem';
-import { useNavigate, useParams } from 'react-router-dom';
-import { notesClient } from '../../../client/client';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
+
 import { createBlock, getBlock, patchBlock } from '../../../client/notes/block';
 import { getWorkspace } from '../../../client/notes/workspace';
 import { EventEmitter } from '../../../events/events';
-
-const { Text, Link } = Typography;
 
 const WorkSpaceMenu = () => {
   const [reloadState, setReloadState] = useState(true);
@@ -142,13 +139,18 @@ const WorkSpaceMenu = () => {
           children: [
             {
               key: 'account',
-              icon: <UserOutlined/>,
-              label: <a href='/app/account'>Account</a>,
+              icon: <UserOutlined />,
+              label: <NavLink to='/app/account'>Account</NavLink>,
+            },
+            {
+              key: 'inbox',
+              icon: <InboxOutlined />,
+              label: <NavLink to='/app/inbox'>Inbox</NavLink>,
             },
             {
               key: 'settings',
               icon: <SettingOutlined />,
-              label: 'Settings',
+              label: <NavLink to='/app/settings'>Settings</NavLink>,
             }
           ]
         },
