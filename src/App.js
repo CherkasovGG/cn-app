@@ -49,10 +49,9 @@ const App = () => {
                 <AppPage />
               </RouteGuard>
             } />
-              {/* <Route path='page/:pageId' element={<WorkSpace />}/>
-              <Route path='page/' element={<WorkSpace />}/>
-              <Route path='account' element={<AccountPage />}/> */}
-            {/* <Route path='*' element={<Navigate to="/app/page/" />}/> */}
+            
+            <Route path='*' element={<Navigate to="/app" />}/>
+            <Route path='' element={<Navigate to="/app" />}/>
           </Routes>
         </div>
       </Router>

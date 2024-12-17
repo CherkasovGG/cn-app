@@ -42,6 +42,8 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
       })
       .catch((error) => {
         setError(error);
+
+        onError();
         
         setLoading(false);
       })

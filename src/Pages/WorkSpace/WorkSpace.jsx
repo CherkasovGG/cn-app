@@ -1,27 +1,25 @@
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import Page from '../Page/Page';
 import Block from '../../components/Block/Block';
+import { getWorkspace } from '../../client/notes/workspace';
 
 
 const WorkSpace = () => {
-    const { pageId } = useParams();
+    const [workspace, setWorkspace] = useState(null);
 
-    const navigate = useNavigate();;
+    useEffect(() => {
+        getWorkspace()
+            .then(data => setWorkspace(data))
+    }, []);
 
-    const onError = (err) => {
-        navigate('/app/page/');
-    };
+    if (!workspace) {
+        return <>Loading...</>;
+    }
 
     return (
-        <Page>
-            {
-                pageId === undefined ? 
-                null :
-                <Block id={pageId} onError={onError}/>
-            }
-        </Page>
+        <Navigate to={"/app/page/" + workspace.id} />
     );
 };
 
