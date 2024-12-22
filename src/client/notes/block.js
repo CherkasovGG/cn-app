@@ -81,6 +81,10 @@ const patchBlock = async (id, data) => {
     }
 
     const block = {
+        id: id,
+        type: data.type,
+        properties: {},
+        content: [],
         ...cache.get(id),
         ...data,
     };
@@ -88,7 +92,36 @@ const patchBlock = async (id, data) => {
     cache.set(id, block);
     saveCacheToLocalStorage();
 
-    EventEmitter.emit('update-block-' + id);
+    if (data.type)
+        EventEmitter.emit('update-block-' + id);
+};
+
+const patchTransactionBlock = async (data) => {
+    try {
+        const response = await fetch(baseURL + '/transaction', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken(),
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        Object.entries(data).forEach(async ([id, data1]) => {
+            cache.delete(id);
+            saveCacheToLocalStorage();
+
+            if (data1.type) {
+                EventEmitter.emit('update-block-' + id);
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка при обновлении транзакций:', error);
+    }
 };
 
 const putBlock = async (id, data) => {
@@ -137,10 +170,37 @@ const deleteBlock = async (id) => {
     saveCacheToLocalStorage();  
 };
 
+const pushBlockChildren = async (dest_id, child_id) => {
+    const child = await getBlock(child_id);
+    
+    const parent = await getBlock(child.parent);
+
+    const index = parent.content.indexOf(child.id);
+
+    parent.content.splice(index, 1);
+
+    const dest = await getBlock(dest_id);
+    dest.content.push(child_id);
+
+    patchTransactionBlock({
+        [parent.id]: {
+            content: parent.content
+        },
+        [dest_id]: {
+            content: dest.content
+        },
+        [child_id]: {
+            parent: dest_id
+        },
+    })
+}
+
 export {
     getBlock,
     createBlock,
     putBlock,
     patchBlock,
     deleteBlock,
+    pushBlockChildren,
+    patchTransactionBlock,
 };

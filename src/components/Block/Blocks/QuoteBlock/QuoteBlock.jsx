@@ -1,34 +1,15 @@
+import React from 'react';
+
 import { Typography } from 'antd';
-import React, { useState } from 'react';
-import { patchBlock } from '../../../../client/notes/block';
+
+import TextContent from '../TextBlock/TextContent';
+
 
 const QuoteBlock = ({ block }) => {
-    const [textContent, setTextContent] = useState(block.properties.text[0][0]);
-
-    const onChange = (text) => {
-        setTextContent(text);
-
-        patchBlock(block.id, {
-            properties: {
-                ...block.properties,
-                text: [[text]],
-            }
-        })
-    }
-
     return (
-        <Typography.Paragraph type={textContent === '' ? 'secondary' : ''} editable={{onChange: onChange, triggerType: ['text'], text: (
-                textContent === '' ? 
-                "Type text..." :
-                textContent
-            )}}
-            style={{margin: 0}}>
+        <Typography.Paragraph>
             <blockquote style={{margin: 0}}>
-            {
-                textContent === '' ? 
-                "Type text..." :
-                textContent
-            }
+                <TextContent block={block}/>
             </blockquote>
         </Typography.Paragraph>
     );

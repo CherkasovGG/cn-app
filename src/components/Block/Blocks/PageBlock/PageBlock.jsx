@@ -7,10 +7,11 @@ import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 
 import { deleteBlock, patchBlock } from '../../../../client/notes/block';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { EventEmitter } from '../../../../events/events';
 import CreateReminderModal from './CreateReminderModal';
 import { createReminder } from '../../../../client/reminder/reminder';
+import TextContent from '../TextBlock/TextContent';
 
 const PageBlock = ({ block, inline=false }) => {
     const [blockData, setBlock] = useState(block);
@@ -20,8 +21,21 @@ const PageBlock = ({ block, inline=false }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        setBlock(block);
+        setBlock({...block});
     }, [block])
+
+    useEffect(() => {
+        if (inline) {
+            return;
+        }
+        const title = (blockData.properties.emoji ?
+            blockData.properties.emoji :
+            "📄") + ' ' + blockData.properties.text[0][0];
+
+        console.log(title);
+
+        document.title = title;
+    }, [blockData]);
 
     const handleRename = () => {
         EventEmitter.emit('updateMenu', {});
@@ -85,7 +99,7 @@ const PageBlock = ({ block, inline=false }) => {
                     <Popover content={
                         <Picker data={data} onEmojiSelect={(e) => patchProperties({emoji: e.native})} locale='ru' noResultsEmoji="page_facing_up" previewPosition="none"/>
                     } title="Выбор эмодзи" trigger="hover" placement="bottomLeft">
-                        <span style={{cursor: 'pointer', margin: 0}}>
+                        <span style={{cursor: 'pointer', margin: "4px 0 0 0"}}>
                         {
                             blockData.properties.emoji ?
                             blockData.properties.emoji :
@@ -94,16 +108,8 @@ const PageBlock = ({ block, inline=false }) => {
                         </span>
                     </Popover>
                     <strong style={{width: '-webkit-fill-available'}}>
-                    <Typography.Title editable={{onChange: (t) => patchProperties({text: [[t]]}), triggerType: ['text']}} style={{width: '-webkit-fill-available', height: 'initial', margin: 0}}>
-                        {
-                            blockData.properties.text ?
-                            (
-                            blockData.properties.text[0][0] ?
-                            blockData.properties.text[0][0] :
-                            "Untitled"
-                            ) :
-                            "Home"
-                        }
+                    <Typography.Title style={{width: '-webkit-fill-available', height: 'initial', margin: 0}}>
+                        <TextContent block={block} onChange={handleRename}/>
                     </Typography.Title>
                     </strong>
                 </Flex>
@@ -128,7 +134,6 @@ const PageBlock = ({ block, inline=false }) => {
                             });
                     }}/>
                 </Flex>
-                
             </h1>
             <Divider />
         </>

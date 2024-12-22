@@ -16,6 +16,7 @@ import Heading1Block from './Blocks/HeadingBlock/Heading1Block';
 import Heading2Block from './Blocks/HeadingBlock/Heading2Block';
 import ImageBlock from './Blocks/ImageBlock/ImageBlock';
 import CheckBoxBlock from './Blocks/CheckBoxBlock/CheckBoxBlock';
+import { useParams } from 'react-router-dom';
 
 
 const Block = ({ id, onError, inline=false, inline_content=false, ...props }) => {
@@ -25,6 +26,12 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
   const [error, setError] = useState(null);
 
   const [reload, setReload] = useState(false);
+
+  const { pageId } = useParams();
+
+  if (pageId !== id) {
+      inline = true;
+  }
 
   const updateData = () => {
     setLoading(true);
@@ -43,7 +50,9 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
       .catch((error) => {
         setError(error);
 
-        onError();
+        if (onError) {
+          onError();
+        } 
         
         setLoading(false);
       })
@@ -82,19 +91,18 @@ const Block = ({ id, onError, inline=false, inline_content=false, ...props }) =>
 
   if (loading) {
     return (
-      <div className={classes.wrap}>
-      </div>
+      <div className={classes.loading}>Loading...</div>
     );
   }
 
   if (error) {
     return (
-      null
+      <div className={classes.error}>Error: {error.message}</div>
     );
   }
 
   return (
-    <div className={classes.wrap}>
+    <div className={classes.wrap} id={"block-" + id}>
       {
         {
           "text": <TextBlock block={block} inline={inline}/>,

@@ -103,7 +103,7 @@ const DraggableContainer = ({ children, onUpdate, ...props }) => {
   );
 
   const items_memo = items.filter((item, i) => item !== null).map((item, index) => {
-    return <Draggable key={item.props.id} draggableId={String(item.props.id)} index={index} direcion>
+    return <Draggable key={"wrapped-block-" + item.props.id} draggableId={"wrapped-block-" + item.props.id} index={index}>
       {(provided) => {
         // let transform = provided.draggableProps.style?.transform
 
@@ -117,17 +117,17 @@ const DraggableContainer = ({ children, onUpdate, ...props }) => {
         // }
 
         return <div ref={provided.innerRef} {...provided.draggableProps} className={classes.container}>
-          <div style={{display: "flex", alignItems: "center"}}>
-          <Popover placement="leftTop" content={chooseTypePopover(item.props.id)} trigger="click" overlayStyle={{
-            width: "200px",
-          }}>
-            <PlusOutlined 
-              style={{
-                cursor: 'pointer',
-              }}
-              className={classes.dragHandle}
-            />
-          </Popover>
+          <div style={{display: "flex", alignItems: "start"}}>
+            <Popover placement="leftTop" content={chooseTypePopover(item.props.id)} trigger="click" overlayStyle={{
+              width: "200px",
+            }}>
+              <PlusOutlined 
+                style={{
+                  cursor: 'pointer',
+                }}
+                className={classes.dragHandle}
+              />
+            </Popover>
             <HolderOutlined
               {...provided.dragHandleProps} 
               style={{

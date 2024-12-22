@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 
 import { Checkbox, Typography } from 'antd';
 import { patchBlock } from '../../../../client/notes/block';
+import TextContent from '../TextBlock/TextContent';
 
 
 const CheckBoxBlock = ({ block }) => {
-    const [textContent, setTextContent] = useState(block.properties.text[0][0]);
     const [checked, setChecked] = useState(block.properties.checked ? block.properties.checked[0][0] : false);
 
     const onChange = (prop, val) => {
-        if (prop === "text")
-            setTextContent(val);
-        else 
+        if (prop !== "text")
             setChecked(val);
 
         patchBlock(block.id, {
@@ -24,14 +22,9 @@ const CheckBoxBlock = ({ block }) => {
 
     return (
         <Checkbox onChange={(e) => onChange("checked", e.target.checked)} checked={checked}>
-            <Typography.Text type={textContent === '' ? 'secondary' : ''} editable={{onChange: (t) => onChange("text", t), triggerType: ['text']}}>
-            
-            {
-                textContent === '' ? 
-                "Type text..." :
-                textContent
-            }
-        </Typography.Text>
+            <Typography.Text>
+                <TextContent block={block} />
+            </Typography.Text>
         </Checkbox>
     );
 };

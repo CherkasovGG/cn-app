@@ -31,17 +31,19 @@ const ContentCtx = ({ block, onUpdate, inline=false }) => {
 
     return (
         <div className='flex column'>
-            <div key={blockData.id + blockData.content}>
+            <div key={blockData.id + blockData.content} style={blockData.type !== "page" && blockData.type !== "workspace" ? {} : {marginTop: -12}} id={"block-container-" + block.id}>
                 <DraggableContainer onUpdate={onUpdate}>
-                    {
+                    {   
+                        !blockData.content ?
+                        null :
                         blockData.content.map((data, i) => <Block id={data} key={data} inline={inline}/>)
                     }
                 </DraggableContainer>
             </div>
             {
-                blockData.content.length === 0 && blockData.type !== "page" && blockData.type !== "workspace" ?
+                blockData.type !== "page" && blockData.type !== "workspace" ?
                 null :
-                <Button icon="+" style={{'width': "auto", marginTop: '12px', marginLeft: "55px"}} type='dashed' onClick={newBlock}/>
+                <Button icon="+" style={{'width': "auto", marginTop: '24px', marginLeft: "55px"}} type='dashed' onClick={newBlock}/>
             }
         </div>
     );

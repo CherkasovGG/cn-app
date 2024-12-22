@@ -5,23 +5,29 @@ import 'antd/dist/reset.css';
 import { useNavigate } from 'react-router-dom';
 import { config } from '../../config';
 import { createUser } from '../../client/auth/user';
+import { login } from '../../client/auth/auth';
+import { setAuthToken } from '../../client/auth';
 
 
 const SignUpPage = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const navigate = useNavigate();
 
-    const onFinish = (values) => {
-        console.log(JSON.stringify(values));
-
-        createUser(values)
+    const onLogin = (values) => {
+        login(values)
             .then((data) => {
+                console.log(data);
+
+                const token  =  data.access_token;
+
+                setAuthToken(token);
+
                 messageApi.open({
                     type:'success',
-                    content: 'Регистрация прошла успешно!'
+                    content: 'Авторизация прошла успешно!'
                 })
 
-                // navigate('/auth/signin');
+                navigate('/app');
             })
             .catch((error) => {
                 console.log(error);
@@ -30,6 +36,34 @@ const SignUpPage = () => {
 
                 try {
                     errorMessage = error.response.data.detail.error_massage;
+                } catch (e) {
+                    console.log(e);
+                }
+
+                messageApi.open({
+                    type: 'error',
+                    content: errorMessage
+                })
+            });
+    }
+
+    const onFinish = (values) => {
+        createUser(values)
+            .then((data) => {
+                messageApi.open({
+                    type:'success',
+                    content: 'Регистрация прошла успешно!' + JSON.stringify(data)
+                })
+
+                onLogin(values);
+            })
+            .catch((error) => {
+                console.log(error);
+
+                let errorMessage = "Неизвестная ошибка! Попробуйте позже.";
+
+                try {
+                    errorMessage = error.detail.error_massage;
                 } catch (e) {
                     console.log(e);
                 }

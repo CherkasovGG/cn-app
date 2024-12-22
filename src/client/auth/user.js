@@ -21,23 +21,26 @@ const getUser = async () => {
     }
 
     const data = await response.json();
-
-    console.log(data);
     
     localStorage.setItem('user', JSON.stringify(data));
     return data;
 }
 
 
-const createUser = (data) => {
-    return fetch(baseURL, {
+const createUser = async (data) => {
+    const response = await fetch(baseURL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
     })
-        .then(res => res.json())
+
+    if (!response.ok) {
+        throw await response.json();
+    }
+
+    return await response.json();
 }
 
 export {

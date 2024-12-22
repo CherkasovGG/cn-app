@@ -16,7 +16,7 @@ const Page = ({ children }) => {
             </div>
             <div style={{
                 width: "-webkit-fill-available",
-                padding: "50px 200px",
+                padding: "0 200px 50px 200px",
             }}>
                 {children}
             </div>
