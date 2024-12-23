@@ -30,7 +30,7 @@ const PageBlock = ({ block, inline=false }) => {
         }
         const title = (blockData.properties.emoji ?
             blockData.properties.emoji :
-            "📄") + ' ' + blockData.properties.text[0][0];
+            "📄") + ' ' + (blockData.properties.text ? blockData.properties.text : "Untitled");
 
         console.log(title);
 
@@ -82,8 +82,8 @@ const PageBlock = ({ block, inline=false }) => {
                     {
                     blockData.properties.text ?
                     (
-                    blockData.properties.text[0][0] ?
-                    blockData.properties.text[0][0] :
+                    blockData.properties.text ?
+                    blockData.properties.text :
                     "Untitled"
                     ) :
                     "Magic"
